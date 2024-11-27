@@ -52,26 +52,32 @@
             <div class="form" id="form">
                 <div class="inputs">
                     <label for="name">Name</label>
-                    <input style="padding: 15px;" id="name" type="text" placeholder="Enter your name..." />
+                    <input style="padding: 15px;" id="name" type="text" placeholder="Enter your name..."
+                        v-model="username" />
 
                     <label for="email">Email</label>
-                    <input style="padding: 15px;" id="email" type="email" placeholder="Enter your email..." />
+                    <input style="padding: 15px;" id="email" type="email" placeholder="Enter your email..."
+                        v-model="email" />
 
                     <label for="phone">Phone Number</label>
-                    <input style="padding: 15px;" id="phone" type="tel" placeholder="Enter your phone number..." />
+                    <input style="padding: 15px;" id="phone" type="tel" placeholder="Enter your phone number..."
+                        v-model="phoneNumber" />
 
                     <label for="specialization">Specialization</label>
-                    <select style="padding: 15px;" id="specialization">
-                        <option disabled selected>Select your specialization...</option>
-                        <option>Web Development</option>
-                        <option>Mobile Development</option>
-                        <option>Data Science</option>
-                        <option>Machine Learning</option>
+                    <select style="padding: 15px;" id="specialization" v-model="metaRole">
+                        <option disabled value="">{{ this.metaRole }}</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Mobile Development">Mobile Development</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Machine Learning">Machine Learning</option>
                     </select>
+
                     <label for="about">About Me</label>
-                    <textarea id="about" rows="5" placeholder="Tell us about yourself..."></textarea>
+                    <textarea id="about" rows="5" placeholder="Tell us about yourself..." v-model="about"></textarea>
                     <div>
-                        <button style="margin-top: 50px; color: white; border-radius: 25px 25px 25px 25px; font-size: x-large;" class="save">Save Buttons</button>
+                        <button
+                            style="margin-top: 50px; color: white; border-radius: 25px 25px 25px 25px; font-size: x-large;"
+                            class="save" @click="updateProfile()">Save Buttons</button>
                     </div>
                 </div>
 
@@ -81,15 +87,22 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-    name: "setttingComponent",
+    name: "settingComponent",
     data() {
         return {
             openDrawer: false,
             searchWord: "",
             currentPage: 1,
             itemsPerPage: 8,
-            patients: Array.from({ length: 50 }) // Example: 50 patients
+            patients: Array.from({ length: 50 }), // Example: 50 patients
+            email: '',
+            phoneNumber: '',
+            metaRole: '',
+            username: '',
+            about: ''
         };
     },
     computed: {
@@ -111,9 +124,52 @@ export default {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
             }
+        },
+        getOrganizationdata() {
+            const id = localStorage.getItem('id');
+            if (id) {
+                axios.get(`https://backend-my-doctor-1.onrender.com/org/getOrganizationbyId/${id}`).then(response => {
+                    this.email = response.data.data.email;
+                    this.phoneNumber = response.data.data.phoneNumber;
+                    this.username = response.data.data.username;
+                    this.about = response.data.data.about;
+                    this.metaRole = response.data.data.metaRole; // This would be the specialization
+                }).catch(error => {
+                    console.log(error);
+                    alert(error.message);
+                });
+            } else {
+                alert('You Must Login First');
+            }
+        },
+        updateProfile() {
+            const id = localStorage.getItem('id');
+            if (id) {
+                axios.patch(`https://backend-my-doctor-1.onrender.com/auth-org/updateProfile/${id}`, {
+                    email: this.email,
+                    phoneNumber: this.phoneNumber, // Add phone number to the request body
+                    username: this.username, // Add username to the request body
+                    about: this.about, // Add about to the request body
+                    metaRole: this.metaRole // Add role to the request body
+                })
+                .then(response => {
+                    console.log(response)
+                    alert('Profile updated successfully!');
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Error updating profile!');
+                });
+            } else {
+                alert('You must login first.');
+            }
         }
-    }
+    },
+    created() {
+        this.getOrganizationdata();
+    },
 };
+
 </script>
 
 <style scoped>
@@ -294,13 +350,15 @@ label {
     background-color: rgba(142, 66, 179, 1);
     border: none;
 }
+
 .inputs input,
 .inputs select,
 .inputs textarea {
     padding: 10px;
     font-size: 1em;
     border: 1px solid rgba(142, 66, 179, 0.6);
-    border-radius: 25px 25px 25px 25px; /* Make this round */
+    border-radius: 25px 25px 25px 25px;
+    /* Make this round */
     background-color: #fff;
     color: #333;
     width: 100%;
@@ -397,7 +455,8 @@ label {
     flex-direction: column;
     gap: 20px;
     margin-top: 30px;
-    width: 100%; /* Full-width for mobile screens */
+    width: 100%;
+    /* Full-width for mobile screens */
 }
 
 .inputs input,
@@ -406,13 +465,14 @@ label {
     padding: 10px;
     font-size: 1em;
     border: 1px solid rgba(142, 66, 179, 0.6);
-    border-radius: 25px; /* Rounded corners */
+    border-radius: 25px;
+    /* Rounded corners */
     background-color: #fff;
     color: #333;
     width: 100%;
 }
 
-.inputs{
+.inputs {
     width: 50%;
 }
 
@@ -421,7 +481,8 @@ label {
     width: 100%;
     background-color: rgba(142, 66, 179, 1);
     border: none;
-    border-radius: 25px; /* Rounded save button */
+    border-radius: 25px;
+    /* Rounded save button */
     color: white;
     font-size: x-large;
     margin-top: 50px;
@@ -430,7 +491,8 @@ label {
 /* Responsive Styling */
 @media (max-width: 1439px) {
     .drawer-icon {
-        display: block; /* Show drawer icon on smaller screens */
+        display: block;
+        /* Show drawer icon on smaller screens */
     }
 
     .right-side {
@@ -441,13 +503,14 @@ label {
 }
 
 @media (max-width: 768px) {
+
     /* Adjust layout for very small screens */
     .parent {
         flex-direction: column;
         align-items: center;
     }
 
-    
+
 
     .right-side {
         width: 90%;
@@ -505,5 +568,4 @@ label {
     margin-top: auto;
     text-align: center;
 }
-
 </style>

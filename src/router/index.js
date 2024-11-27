@@ -5,6 +5,8 @@ import overView from '../views/overviewComponent.vue';
 import patientComponent from "../views/patientsComponent.vue";
 import setttingComponent from "../views/settingComponent.vue";
 import logoutComponent from "../views/logoutComponent.vue";
+import ConnectionManager from "../views/startLive.vue";
+import viewerComponent from "../views/viewersComponent.vue";
 const routes = [
   {
     path: '/',
@@ -35,6 +37,16 @@ const routes = [
     path: "/logout",
     name: "logoutComponent",
     component: logoutComponent
+  },
+  {
+    path: "/live",
+    name: "ConnectionManager",
+    component: ConnectionManager
+  },
+  {
+    path: "/viewers",
+    name: "viewerComponent",
+    component: viewerComponent
   }
 ]
 

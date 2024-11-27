@@ -1,5 +1,3 @@
-
-//AuthComponent
 <template>
   <div class="parent">
     <div class="cont" :class="{ 's--signup': isSignUp }">
@@ -14,8 +12,8 @@
           </div>
         </div>
         <label>
-          <span>Phone Number</span> 
-          <input type="email" v-model="signInForm.phoneNumber" />
+          <span>Phone Number</span>
+          <input type="text" v-model="signInForm.phoneNumber" />
         </label>
         <label>
           <span>Password</span>
@@ -66,6 +64,10 @@
               </select>
             </label>
             <label>
+              <span>Email</span>
+              <input type="gmail" v-model="signUpForm.email" required />
+            </label>
+            <label>
               <span>Phone Number</span>
               <input type="tel" v-model="signUpForm.phoneNumber" required />
             </label>
@@ -90,12 +92,10 @@
         </div>
       </div>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
-// import HomeComponent from './HomeComponent.vue';
-
 import axios from 'axios';
 export default {
   name: 'AuthComponent',
@@ -116,8 +116,9 @@ export default {
         address: '',
         gender: '',
         date_of_birth: '',
-        workDays: []  // This can be an array if needed
-      }
+        email: '',
+        workDays: []
+      },
     };
   },
   methods: {
@@ -140,7 +141,11 @@ export default {
       })
         .then(response => {
           console.log(response);
+          localStorage.setItem('email', response.data.user.email);
           localStorage.setItem('phoneNumber', response.data.user.phoneNumber); // Adjusted to access data correctly
+          localStorage.setItem('id', response.data.user._id);
+          localStorage.setItem('username', response.data.username);
+          this.$router.push('/');
         })
         .catch(error => {
           console.log(error);
@@ -148,41 +153,41 @@ export default {
     },
 
     async handleSignUp() {
-    console.log('Sign Up with:', this.signUpForm);
-    console.log(this.signUpForm.date_of_birth);
-    const formData = new FormData(); // Create FormData instance
+      console.log('Sign Up with:', this.signUpForm);
+      console.log(this.signUpForm.date_of_birth);
+      const formData = new FormData(); // Create FormData instance
 
-    // Append each field from signUpForm to formData
-    formData.append('username', this.signUpForm.username);
-    formData.append('profile_image', this.signUpForm.profile_image); // Ensure this is a file input
-    formData.append('role', this.signUpForm.role);
-    formData.append('metaRole', this.signUpForm.metaRole);
-    formData.append('phoneNumber', this.signUpForm.phoneNumber);
-    formData.append('password', this.signUpForm.password);
-    formData.append('address', this.signUpForm.address);
-    formData.append('gender', this.signUpForm.gender);
-    formData.append('date_of_birth', this.signUpForm.date_of_birth);
-    formData.append('workDays', JSON.stringify(this.signUpForm.workDays)); // Append workDays as JSON
+      // Append each field from signUpForm to formData
+      formData.append('username', this.signUpForm.username);
+      formData.append('profile_image', this.signUpForm.profile_image); // Ensure this is a file input
+      formData.append('role', this.signUpForm.role);
+      formData.append('metaRole', this.signUpForm.metaRole);
+      formData.append('phoneNumber', this.signUpForm.phoneNumber);
+      formData.append('password', this.signUpForm.password);
+      formData.append('address', this.signUpForm.address);
+      formData.append('gender', this.signUpForm.gender);
+      formData.append('date_of_birth', this.signUpForm.date_of_birth);
+      formData.append('workDays', JSON.stringify(this.signUpForm.workDays));
+      formData.append('email', this.signUpForm.email);
 
-    try {
-      const response = await fetch('https://backend-my-doctor-1.onrender.com/auth-org/signup', {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const response = await fetch('https://backend-my-doctor-1.onrender.com/auth-org/signup', {
+          method: 'POST',
+          body: formData,
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
-        alert('User registered successfully');
-      } else {
-        alert(`Error: ${data.message}`);
+        if (response.ok) {
+          alert('User registered successfully');
+        } else {
+          alert(`Error: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while signing up.');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while signing up.');
-    }
-  },
-
+    },
   }
 };
 </script>

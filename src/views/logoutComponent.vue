@@ -42,16 +42,15 @@
                 </div>
             </div>
         </div>
-
         <!-- Right-Side Form Section -->
         <div class="right-side">
             <div class="form">
                 <div class="inputs">
                     <h2>Logout</h2>
                     <label for="email">Email</label>
-                    <input style="padding: 15px;" id="email" type="email" placeholder="Enter your email..." />
+                    <input style="padding: 15px;" id="email" type="email" placeholder="Enter your email..." v-model="email" />
                 </div>
-                <button class="save" style="width: 60%;">Logout</button>
+                <button class="save" style="width: 60%;" @click="logout()">Logout</button>
             </div>
         </div>
     </div>
@@ -63,8 +62,21 @@ export default {
     data() {
         return {
             openDrawer: false,
+            email: '',
         };
     },
+    methods:{
+        logout(){
+            const email = localStorage.getItem('email')
+            if(this.email === email){
+                localStorage.removeItem('id');
+                localStorage.removeItem('email');
+                localStorage.removeItem('phoneNumber');
+            }else{
+                alert('Email is not correct');
+            }
+        }
+    }
 };
 </script>
 

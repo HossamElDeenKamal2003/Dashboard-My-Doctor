@@ -8,14 +8,14 @@
         <a href=""><img :src="require('../components/img/icon4.png')" alt="Icon 1" class="icon" /></a>
         <a href=""><img :src="require('../components/img/icon6.png')" alt="Icon 3" class="icon" /></a>
         <a href=""><img :src="require('../components/img/icon5.png')" alt="Icon 2" class="icon" /></a>
-        <a href=""><img :src="require('../components/img/messages (1).png')" alt="Icon 2" class="icon"/></a>
+        <a href=""><img :src="require('../components/img/messages (1).png')" alt="Icon 2" class="icon" /></a>
         <!-- Add more icons as needed -->
       </div>
     </div>
     <div class="right-side">
       <div class="top-bar">
         <div class="search">
-          <input type="text" v-model="searchWord" placeholder="Search here...">
+          <input type="text" v-model="searchQuery" placeholder="Search here...">
         </div>
         <div class="navigation">
           Navigation
@@ -74,93 +74,18 @@
             <thead>
               <tr>
                 <th>Patient Name</th>
-                <th>Today</th>
-                <th>ID Number</th>
-                <th>Gender</th>
                 <th>Age</th>
-                <th>Phone Number</th>
+                <th>Gender</th>
+                <!-- Add other table headers as needed -->
               </tr>
             </thead>
             <tbody>
-              <!-- Example row -->
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
+              <tr v-for="patient in filteredPatients" :key="patient.id">
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.age }}</td>
+                <td>{{ patient.gender }}</td>
+                <!-- Add other patient data as needed -->
               </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-
-              </tr>
-              <tr>
-                <td>John Doe</td>
-                <td>2024-11-03</td>
-                <td>123456</td>
-                <td>Male</td>
-                <td>30</td>
-                <td>01011905009</td>
-
-              </tr>
-
             </tbody>
           </table>
         </div>
@@ -169,6 +94,8 @@
   </div>
 </template>
 <script>
+import axios from 'axios';
+
 export default {
   name: "mainDashboard",
   data() {
@@ -176,7 +103,7 @@ export default {
       searchWord: "",
       selectedDay: "Monday",
       startTime: "09:00",
-      endTime: "17:00", 
+      endTime: "17:00",
       daysOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
       patients: [
         { name: "John Doe", today: "2024-11-03", id: "123456", gender: "Male", age: 30 },
@@ -185,6 +112,7 @@ export default {
         { name: "Emily Davis", today: "2024-11-03", id: "901234", gender: "Female", age: 35 },
         // Add more patients as needed
       ],
+      id: localStorage.getItem('id')
     };
   },
   methods: {
@@ -193,7 +121,28 @@ export default {
       console.log(`Added work hours: ${this.selectedDay} from ${this.startTime} to ${this.endTime}`);
       // You can add the logic to save this data to a backend or store it in your state
     },
+
+    getPatients() {
+      console.log("id before", this.id);
+      axios.get('https://backend-my-doctor-1.onrender.com/auth-org/get-my-orders', {
+        organizationId: this.id
+      })
+        .then(response => {
+          console.log(response.data);  // Check the response data
+        })
+        .catch(error => {
+          console.log(error.message);
+          alert("Error While Fetching Data");
+        });
+    }
+
+
   },
+ created(){
+  this.id = localStorage.getItem('id');
+  this.getPatients();
+ }
+
 };
 </script>
 
@@ -215,7 +164,7 @@ export default {
   flex-wrap: wrap;
 }
 
-.icons{
+.icons {
   height: 70%;
   width: 60%;
 
@@ -303,16 +252,17 @@ export default {
   /* Adjust opacity if needed */
 }
 
-.doctor-row{
+.doctor-row {
   width: 100%;
 }
+
 pre {
   font-size: 2em;
 }
 
 .d-flex {
   width: 45%;
-  
+
 }
 
 .card-doc {
@@ -369,21 +319,28 @@ pre {
 
 .patient-table {
   width: 100%;
-  border-collapse: collapse; /* Remove space between borders */
+  border-collapse: collapse;
+  /* Remove space between borders */
   text-align: center;
   overflow: auto;
 }
 
-.patient-table th, .patient-table td {
-  border: none; /* Remove borders */
-  padding: 10px; /* Add padding for better spacing */
-  text-align: left; /* Align text to the left */
+.patient-table th,
+.patient-table td {
+  border: none;
+  /* Remove borders */
+  padding: 10px;
+  /* Add padding for better spacing */
+  text-align: left;
+  /* Align text to the left */
   text-align: center;
 }
 
 .patient-table th {
-  background-color: rgba(142, 66, 179, 1); /* Optional: Add background color for header */
-  color: white; /* Optional: Text color for header */
+  background-color: rgba(142, 66, 179, 1);
+  /* Optional: Add background color for header */
+  color: white;
+  /* Optional: Text color for header */
   text-align: center;
 }
 
@@ -398,43 +355,44 @@ pre {
 }
 
 .icon {
-  width: 40px; /* Adjust size as needed */
+  width: 40px;
+  /* Adjust size as needed */
   height: 40px;
   margin: 10px 0;
 }
 
-.icons img{
+.icons img {
   margin-bottom: 50px;
 }
 
-@media (max-width: 768px){
-  .parent{
+@media (max-width: 768px) {
+  .parent {
     flex-wrap: wrap;
   }
 
-  .icons{
+  .icons {
     flex-direction: row;
   }
 
-  .right-side{
+  .right-side {
     width: 100%;
     height: fit-content;
   }
 
-  .left-side{
+  .left-side {
     height: fit-content;
     width: 100%
   }
 
-  .icons img{
+  .icons img {
     margin-right: 10px;
   }
 
-  .doctor-card{
+  .doctor-card {
     display: grid;
   }
 
-  .card-doc{
+  .card-doc {
     display: grid;
   }
 }
